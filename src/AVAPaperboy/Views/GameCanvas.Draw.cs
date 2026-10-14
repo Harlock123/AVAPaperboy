@@ -232,16 +232,20 @@ public sealed partial class GameCanvas
     {
         double n = h.Near, f = h.Far, bx = Field.HouseBack, fx = Field.HouseFront, top = House.WallHeight;
         uint wall = h.Wall, roof = h.Roof, trim = h.Trim;
-        // The near end, then the front, then the roof.
+        // The back slope of the roof, then the near end wall, the front wall, the front slope and the gable.
+        double ridge = top + 58, rx = (bx + fx) / 2;
+        Poly(dc, Shade(roof, 0.7), 0xFF201810, P(rx, n - 10, ridge), P(rx, f + 10, ridge), P(bx - 12, f + 10, top - 6), P(bx - 12, n - 10, top - 6));
         Poly(dc, Shade(wall, 0.82), 0xFF201810, P(bx, n), P(fx, n), P(fx, n, top), P(bx, n, top));
         Poly(dc, wall, 0xFF201810, P(fx, n), P(fx, f), P(fx, f, top), P(fx, n, top));
-        double ridge = top + 58, rx = (bx + fx) / 2;
+        Poly(dc, Shade(wall, 0.75), 0xFF201810, P(bx, n, top), P(fx, n, top), P(rx, n, ridge));
         Poly(dc, roof, 0xFF201810, P(fx + 12, n - 10, top - 6), P(fx + 12, f + 10, top - 6), P(rx, f + 10, ridge), P(rx, n - 10, ridge));
-        Poly(dc, Shade(wall, 0.72), 0xFF201810, P(bx, n, top), P(fx, n, top), P(rx, n, ridge));
-        Poly(dc, Shade(roof, 0.8), 0xFF201810, P(bx - 12, n - 10, top - 6), P(rx, n - 10, ridge), P(rx, n - 4, ridge - 2), P(bx - 8, n - 4, top - 4));
+        // The roof's near edge: a fascia board along both slopes.
+        dc.DrawLine(Pen(Shade(roof, 0.55), 3), P(bx - 12, n - 10, top - 6), P(rx, n - 10, ridge));
+        dc.DrawLine(Pen(Shade(roof, 0.55), 3), P(rx, n - 10, ridge), P(fx + 12, n - 10, top - 6));
+        dc.DrawLine(Pen(Shade(roof, 1.2), 2), P(rx, n - 10, ridge), P(rx, f + 10, ridge));
         if (h.Style == 1)
         {
-            // A brick chimney poking through the roof.
+            // A brick chimney poking through the front slope.
             double cy = h.Y0 + 190, c0 = rx + 8, c1 = rx + 30;
             Poly(dc, 0xFF8A3A2A, 0xFF201810, P(c0, cy, ridge - 30), P(c1, cy, ridge - 30), P(c1, cy, ridge + 14), P(c0, cy, ridge + 14));
             Poly(dc, 0xFF6A2A1E, 0xFF201810, P(c1, cy, ridge - 30), P(c1, cy + 22, ridge - 30), P(c1, cy + 22, ridge + 14), P(c1, cy, ridge + 14));
@@ -528,26 +532,26 @@ public sealed partial class GameCanvas
         // The boy: legs on the pedals, body leaning with the steering.
         double lean = r.Lean * 4;
         var hip = new Point(seat.X + lean * 0.5, seat.Y - 4);
-        var shoulder = new Point(hip.X + lean - 6, hip.Y - 24);
+        var shoulder = new Point(hip.X + lean + 5, hip.Y - 24);
         for (int k = 0; k < 2; k++)
         {
             double a = r.Pedal + k * Math.PI;
             var pedal = new Point(crank.X + Math.Cos(a) * 6, crank.Y + Math.Sin(a) * 6);
-            var knee = new Point((hip.X + pedal.X) / 2 - 7, (hip.Y + pedal.Y) / 2 - 5);
+            var knee = new Point((hip.X + pedal.X) / 2 + 7, (hip.Y + pedal.Y) / 2 - 5);
             dc.DrawLine(Limb(0xFF2A3A7A, 5), hip, knee);
             dc.DrawLine(Limb(0xFF2A3A7A, 5), knee, pedal);
         }
         dc.DrawLine(Limb(0xFF3A9A5A, 11), hip, shoulder);
         // The bag of papers on his hip.
-        dc.DrawRectangle(Brush(0xFFE8E0C8), Pen(0xFF6A5A3A, 1.5), new Rect(hip.X + 2, hip.Y - 16, 12, 14), 2, 2);
-        if (r.Papers > 0) dc.FillRectangle(Brush(Newsprint), new Rect(hip.X + 4, hip.Y - 20, 8, 5));
+        dc.DrawRectangle(Brush(0xFFE8E0C8), Pen(0xFF6A5A3A, 1.5), new Rect(hip.X - 15, hip.Y - 16, 12, 14), 2, 2);
+        if (r.Papers > 0) dc.FillRectangle(Brush(Newsprint), new Rect(hip.X - 13, hip.Y - 20, 8, 5));
         // Arms: one to the bars, the other out to the left when throwing.
         dc.DrawLine(Limb(0xFFF0C090, 3.5), shoulder, new Point(bars.X + 4, bars.Y - 2));
         if (r.ThrowTime > 0.08) dc.DrawLine(Limb(0xFFF0C090, 3.5), shoulder, new Point(shoulder.X - 18, shoulder.Y + 2));
         else dc.DrawLine(Limb(0xFFF0C090, 3.5), shoulder, new Point(bars.X - 4, bars.Y));
         dc.DrawEllipse(Brush(0xFFF0C090), Pen(0xFF5A3A20, 1), new Point(shoulder.X, shoulder.Y - 8), 6, 6);
         dc.DrawEllipse(Brush(0xFFD02A2A), null, new Point(shoulder.X, shoulder.Y - 12), 6, 3.5);
-        dc.FillRectangle(Brush(0xFFD02A2A), new Rect(shoulder.X - 9, shoulder.Y - 12, 6, 2.5));
+        dc.FillRectangle(Brush(0xFFD02A2A), new Rect(shoulder.X + 3, shoulder.Y - 12, 6, 2.5));
     }
 
     private void DrawCrashed(DrawingContext dc, Rider r)
@@ -592,7 +596,7 @@ public sealed partial class GameCanvas
     private void DrawHud(DrawingContext dc)
     {
         var g = Engine;
-        dc.FillRectangle(Brush(0xF0101418), new Rect(0, 0, Field.Width, Field.Top));
+        dc.FillRectangle(Brush(0xFF101418), new Rect(0, 0, Field.Width, Field.Top));
         dc.FillRectangle(Brush(0xFF6A5A3A), new Rect(0, Field.Top - 3, Field.Width, 3));
         Text(dc, "SCORE", new Point(14, 16), 22, Dim);
         Text(dc, g.Score.ToString("D6"), new Point(14, 42), 36, White);

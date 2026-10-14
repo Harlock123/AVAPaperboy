@@ -10,7 +10,7 @@ and at the end of every street there's the training ground.
 
 ## Features
 
-- **Larkspur Lane**: twenty houses down one side of a street that runs diagonally up the screen, seen from above and to the side.
+- **Larkspur Lane**: twenty houses down one side of a street that runs diagonally up the screen, seen from above on the street side, so you face the house fronts and their roofs.
   - **Subscribers'** houses are brightly painted, with green lawns and blue mailboxes.
   - **Non-subscribers'** houses are drab, with parched lawns. One of them has a garden full of gravestones.
 - **The paper round**:

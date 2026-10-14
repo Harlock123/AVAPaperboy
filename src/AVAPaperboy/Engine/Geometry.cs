@@ -11,7 +11,8 @@ public readonly record struct Vec(double X, double Y)
 /// <summary>
 /// The street, seen from above and to one side. X runs across it (the back gardens at 0, the house
 /// fronts, the lawns, the pavement, the road and the far kerb); Y runs along it, away from the
-/// viewer; Z is height. On screen the street runs diagonally up to the left.
+/// viewer; Z is height. The view is from the street side, above and behind the bike, so the house
+/// fronts face the viewer and the street runs diagonally up to the right.
 /// </summary>
 public static class Field
 {
@@ -37,5 +38,5 @@ public static class Field
 
     /// <summary>Where on screen a point of the street is, with the camera at <paramref name="cam"/>.</summary>
     public static (double X, double Y) Project(double x, double y, double z, double cam) =>
-        (330 + x - (y - cam) * 0.5, 760 - (y - cam) * 0.68 - z);
+        (60 + x + (y - cam) * 0.35, 760 - (y - cam) * 0.68 - z);
 }
